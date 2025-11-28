@@ -186,4 +186,4 @@ SOURCE_PATH_DIR=$(basename "${SOURCE_PATH}")
 
 echo "Starting transfer of ${SOURCE_PATH} ---------------> ${RECEIVER}:${PORT} ${DESTINATION_PATH}"
 # start transfer
-tar --sparse --directory "$PARENT_DIR" --create "${SOURCE_PATH_DIR}" | pv --progress --eta --timer --rate --bytes --cursor --size "$SZ" --force --name Transfering -L "${RATE_LIMIT}" | /usr/bin/ncat "${RECEIVER}" "${PORT}"
+tar --sparse --directory "$PARENT_DIR" --create "${SOURCE_PATH_DIR}" | pv --progress --eta --timer --rate --bytes --cursor --size "$SZ" --force --name Transferring -L "${RATE_LIMIT}" | /usr/bin/ncat "${RECEIVER}" "${PORT}"
