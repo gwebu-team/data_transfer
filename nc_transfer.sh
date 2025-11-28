@@ -1,17 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
+
+# Check for required commands
+REQUIRED_COMMANDS=(whiptail ncat pv ssh du fuser tar)
+for cmd in "${REQUIRED_COMMANDS[@]}"; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "ERROR: Required command '$cmd' is not installed." >&2
+        exit 2
+    fi
+done
 
 JOBS=()
 # Close background jobs on exit
 function cleanup {
     echo "Cleaning up..."
     for i in "${JOBS[@]}"; do
-        if ! kill $i; then
-            echo "PID $i alive" >&2;
-        fi;
+        if ! kill "$i" 2>/dev/null; then
+            echo "PID $i still alive or not found" >&2
+        fi
     done
-    trap - EXIT
+    trap - EXIT SIGINT SIGTERM
 }
 
 # check passed arguments
@@ -99,6 +108,12 @@ if [ -z "${PORT}" ]; then
     exit 51
 fi
 
+# Validate port number
+if ! [[ "${PORT}" =~ ^[0-9]+$ ]] || [ "${PORT}" -lt 1024 ] || [ "${PORT}" -gt 65535 ]; then
+    echo "Invalid port number: ${PORT}. Must be between 1024-65535."
+    exit 52
+fi
+
 # Check if RATE_LIMIT is empty and BE_QUIET is not passed as an argument
 if [ -z "${RATE_LIMIT}" ] && [ -z "${BE_QUIET}" ]; then
     RATE_LIMIT=$(whiptail --inputbox "Speed Limit?" 9 69 1G --title "Maximum transfer speed" 3>&1 1>&2 2>&3)
@@ -122,7 +137,7 @@ else
     SSH_AVAILABLE=true
 fi
 
-if [ "${SSH_AVAILABLE}" == "true" ]; then
+if [ "${SSH_AVAILABLE}" = "true" ]; then
     # Check if DESTINATION_PATH exists on the RECEIVER
     if ! ssh "${USERNAME}@${RECEIVER}" -o BatchMode=yes -o ConnectTimeout=5 "test -d $(printf '%q' "$DESTINATION_PATH")"; then
         # Create destination directory on the receiver
@@ -143,7 +158,7 @@ fi
 
 # Connect to the receiver and check if the /usr/bin/ncat is running in a while loop
 TIMEOUT=10
-while [ "$(ssh "${USERNAME}@${RECEIVER}" -o BatchMode=yes "fuser ${PORT}/tcp 2>/dev/null")" == "" ]; do
+while [ "$(ssh "${USERNAME}@${RECEIVER}" -o BatchMode=yes "fuser ${PORT}/tcp 2>/dev/null")" = "" ]; do
     sleep 1
     TIMEOUT=$((TIMEOUT - 1))
     if [ $TIMEOUT -lt 1 ]; then
