@@ -17,12 +17,13 @@ help:
 	@echo "    dist:               Create source distribution package in dist/."
 	@echo "    rpm:                Create an RPM package."
 	@echo "    podman_rpm          Create an RPM package using podman on MacOS."
+	@echo "    lint:               Check shell script for syntax errors and style issues."
 	
 	@echo
 	@echo "    clean:              Clean all generated files."
 	@echo
 	@echo "Version $(ver), rpm_ver=$(rpm_ver), rpm_rev=$(rpm_rev)."
-.PHONY: help
+.PHONY: help lint
 
 
 
@@ -46,6 +47,17 @@ rpm: dist
 	rpmbuild -ta "dist/nc_transfer-$(rpm_ver).tar.xz"
 
 
+
+.PHONY: lint
+lint:
+	@echo "Checking shell script syntax..."
+	@bash -n nc_transfer.sh
+	@if command -v shellcheck >/dev/null 2>&1; then \
+		echo "Running shellcheck..."; \
+		shellcheck nc_transfer.sh; \
+	else \
+		echo "shellcheck not found, skipping style checks"; \
+	fi
 
 .PHONY: clean
 clean:
