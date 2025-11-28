@@ -157,7 +157,7 @@ if [ "${SSH_AVAILABLE}" = "true" ]; then
     ssh "${USERNAME}@${RECEIVER}" -o BatchMode=yes -o ConnectTimeout=5 "/usr/bin/ncat -l -p ${PORT} < /dev/null | tar --sparse --extract --directory ${DESTINATION_PATH}" < /dev/null &
     
     JOBS=($!)
-    trap cleanup EXIT
+    trap cleanup EXIT SIGINT SIGTERM
 
     
 fi
@@ -186,4 +186,7 @@ SOURCE_PATH_DIR=$(basename "${SOURCE_PATH}")
 
 echo "Starting transfer of ${SOURCE_PATH} ---------------> ${RECEIVER}:${PORT} ${DESTINATION_PATH}"
 # start transfer
-tar --sparse --directory "$PARENT_DIR" --create "${SOURCE_PATH_DIR}" | pv --progress --eta --timer --rate --bytes --cursor --size "$SZ" --force --name Transferring -L "${RATE_LIMIT}" | /usr/bin/ncat "${RECEIVER}" "${PORT}"
+if ! tar --sparse --directory "$PARENT_DIR" --create "${SOURCE_PATH_DIR}" | pv --progress --eta --timer --rate --bytes --cursor --size "$SZ" --force --name Transferring -L "${RATE_LIMIT}" | /usr/bin/ncat "${RECEIVER}" "${PORT}"; then
+    echo "ERROR: Transfer failed." >&2
+    exit 74
+fi
