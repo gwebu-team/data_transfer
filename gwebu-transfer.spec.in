@@ -7,6 +7,11 @@ Source0: %{name}-%{version}.tar.xz
 BuildArch: noarch
 Requires: bash >= 4
 Requires: whiptail
+Requires: nmap-ncat
+Requires: pv
+Requires: openssh-clients
+Requires: coreutils
+Requires: tar
 
 %description
 - nc_transfer.sh
