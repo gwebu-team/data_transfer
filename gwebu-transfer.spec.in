@@ -1,11 +1,12 @@
 Summary: nc_transfer - Transferring data to remote servers.
 Name: nc_transfer
 Version: 1.0.0
-Release: 1
+Release: 6
 License: GPLv2
-Source0: %{name}-%{version}.tar.gz
+Source0: %{name}-%{version}.tar.xz
 BuildArch: noarch
 Requires: bash >= 4
+Requires: whiptail
 
 %description
 - nc_transfer.sh

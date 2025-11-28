@@ -1,0 +1,11 @@
+FROM rockylinux:9 as build
+
+WORKDIR /root/nc_transfer
+
+COPY ./ .
+
+RUN \
+    dnf -y install rpmdevtools make git-core && \
+    dnf -y clean all
+
+RUN make rpm
