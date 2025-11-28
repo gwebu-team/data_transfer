@@ -77,7 +77,7 @@ fi
 
 # Check if USERNAME is empty and BE_QUIET is not passed as an argument
 if [ -z "${USERNAME}" ] && [ -z "${BE_QUIET}" ]; then
-    USERNAME=$(whiptail --inputbox "Enter Username?" 9 69 ${USER} --title "${RECEIVER}" 3>&1 1>&2 2>&3)
+    USERNAME=$(whiptail --inputbox "Enter Username?" 9 69 "${USER}" --title "${RECEIVER}" 3>&1 1>&2 2>&3)
 fi
 
 # Check if USERNAME is still empty
