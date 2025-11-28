@@ -125,6 +125,12 @@ if [ -z "${RATE_LIMIT}" ]; then
     RATE_LIMIT="80M"
 fi
 
+# Validate rate limit format (pv accepts: K, M, G, T with optional suffix)
+if ! [[ "${RATE_LIMIT}" =~ ^[0-9]+[KMGT]?[B]?$ ]]; then
+    echo "Invalid rate limit format: ${RATE_LIMIT}. Use format like: 100M, 1G, 500K, etc."
+    exit 53
+fi
+
 # extract base dir from path
 PARENT_DIR=$(dirname "${SOURCE_PATH}")
 
